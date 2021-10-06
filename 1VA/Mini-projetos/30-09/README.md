@@ -3,8 +3,11 @@ Olá, pessoal!
 Hoje e amanhã vocês irão realizar uma atividade assíncrona, que basicamente consiste num estudo comparando dois benchmarks, conforme divisão abaixo:
 
 -> CPU (Anderson, Armstrong e Bruno)
+
 -> Disco (David, Edgar e Gabriel)
+
 -> Memória (Igor, Iris e Luis Fernando)
+
 -> Redes (Matheus Noronha, Raquel e Victor).
 
 Cada equipe deverá abordar, dentre outros, os tópicos abaixo:
