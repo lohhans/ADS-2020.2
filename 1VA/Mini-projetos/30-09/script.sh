@@ -1,17 +1,23 @@
 #!/bin/bash
 # ARMSTRONG LOHÃNS - 20/09/2021
 
-echo "Frequência da obtenção de dados de CPU do sistema: 10 segundos"
+echo "MPSTAT - Obtenção de dados de Benchmarks de CPU"
+echo "Extração de dados: de 10 em 10 segundos dentro de 5 minutos"
+
 echo 
-echo sample usr sys iowait soft idle date hour
-echo sample usr sys iowait soft idle date hour > log.txt
+echo sample usr sys iowait soft steal idle date hour
+echo sample usr sys iowait soft steal idle date hour > log.txt
+
+# Testes de estresse para 5min:
+# sysbench --threads=8 --time=300 --test=cpu run
+# stress-ng --cpu 8 --timeout 300s --metrics
 
 cont=1
 
-while [ $cont -le 10 ]
+while [ $cont -le 30 ]
 do
 
-cpu=`mpstat | grep all | awk '{print $3, $5, $6, $8, $12}'`
+cpu=`mpstat | grep all | awk '{print $3, $5, $6, $8, $9, $12}'`
 
 date=$(date +"%d-%m-%Y")
 time=$(date +"%T")
