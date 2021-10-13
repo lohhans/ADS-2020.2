@@ -1,208 +1,77 @@
 #!/bin/bash
-# ARMSTRONG LOHÃNS - 07/10/2021
+# ARMSTRONG LOHÃNS / BRUNO DINIZ / ANDERSON GONÇALVES - 13/10/2021
 
-# 1º BENCHMARK
-echo " -- Sysbench Benchmark -- "
+echo " -- Sysbench Benchmark / Stress-ng Bnchmark -- "
 
-# 1 - sysbench
-echo "MPSTAT - Obtenção de dados de Benchmarks de CPU"
-echo "Primeira extração de dados do Sysbench: de 10 em 10 segundos dentro de 5 minutos"
+echo "Extração de dados dos Benchmarks: de 10 em 10 segundos dentro de 40 minutos"
 
 echo 
-echo sample usr sys iowait soft steal idle date hour
-echo sample usr sys iowait soft steal idle date hour > sysbench_log1.txt
+echo sample usr sys iowait soft steal idle temp date hour
+echo sample usr sys iowait soft steal idle temp date hour > sysbench_log.txt # ARQUIVO PARA SYSBENCH
+echo sample usr sys iowait soft steal idle temp date hour > stress-ng_log.txt # ARQUIVO PARA STRESS-NG
+    
+echo "O Benchmark (sysbench) iniciará agora, aguarde."
 
-# Testes de estresse para 5min:
-sysbench --threads=8 --time=300 --test=cpu run &
+for i in 1 2 3 4 5 6 7 8 9 10; do
+    echo 
+    echo "\/ SYSBENCH \/"
+    echo 
 
-cont=1
+    # Testes de estresse para 2 min:
+    sysbench --threads=8 --time=120 --test=cpu run &
 
-while [ $cont -le 30 ]
-do
+    cont=1
 
-cpu=`mpstat | grep all | awk '{print $3, $5, $6, $8, $9, $12}'`
+    while [ $cont -le 12 ]
+    do
 
-date=$(date +"%d-%m-%Y")
-time=$(date +"%T")
+    cpu=`mpstat | grep all | awk '{print $3, $5, $6, $8, $9, $12}'`
+    temp=`sensors | grep 'Package id 0' | awk '{print $4}' | sed 's/+//' | sed 's/°C//'`
+    date=$(date +"%d-%m-%Y")
+    time=$(date +"%T")
 
+    echo $cont $cpu $temp $date $time 
+    echo $cont $cpu $temp $date $time >> sysbench_log.txt
 
-echo $cont $cpu $date $time 
-echo $cont $cpu $date $time >> sysbench_log1.txt
+    # Frequencia de amostragem: 10 segundos 
+    sleep 10
 
-# Frequencia de amostragem: 10 segundos 
-sleep 10
+    cont=`expr $cont + 1`
 
-cont=`expr $cont + 1`
+    done
 
-done
+    echo "Próximo Benchmark (stress-ng) iniciará em 20 segundos, aguarde."
+    sleep 20
 
-# 2 - sysbench
-echo "MPSTAT - Obtenção de dados de Benchmarks de CPU"
-echo "Segunda extração de dados do Sysbench: de 10 em 10 segundos dentro de 5 minutos"
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #  
 
-echo 
-echo sample usr sys iowait soft steal idle date hour
-echo sample usr sys iowait soft steal idle date hour > sysbench_log2.txt
+    echo 
+    echo "\/ STRESS-NG \/"
+    echo 
 
-# Testes de estresse para 5min:
-sysbench --threads=8 --time=300 --test=cpu run &
+    # Testes de estresse para 2min:
+    stress-ng --cpu 8 --timeout 120s --metrics &
 
-cont=1
+    cont=1
 
-while [ $cont -le 30 ]
-do
+    while [ $cont -le 12 ]
+    do
 
-cpu=`mpstat | grep all | awk '{print $3, $5, $6, $8, $9, $12}'`
+    cpu=`mpstat | grep all | awk '{print $3, $5, $6, $8, $9, $12}'`
+    temp=`sensors | grep 'Package id 0' | awk '{print $4}' | sed 's/+//' | sed 's/°C//'`
+    date=$(date +"%d-%m-%Y")
+    time=$(date +"%T")
 
-date=$(date +"%d-%m-%Y")
-time=$(date +"%T")
+    echo $cont $cpu $temp $date $time 
+    echo $cont $cpu $temp $date $time >> stress-ng_log.txt
 
+    # Frequencia de amostragem: 10 segundos 
+    sleep 10
 
-echo $cont $cpu $date $time 
-echo $cont $cpu $date $time >> sysbench_log2.txt
+    cont=`expr $cont + 1`
 
-# Frequencia de amostragem: 10 segundos 
-sleep 10
+    done
 
-cont=`expr $cont + 1`
-
-done
-
-# 3 - sysbench
-echo "MPSTAT - Obtenção de dados de Benchmarks de CPU"
-echo "Terceira extração de dados do Sysbench: de 10 em 10 segundos dentro de 5 minutos"
-
-echo 
-echo sample usr sys iowait soft steal idle date hour
-echo sample usr sys iowait soft steal idle date hour > sysbench_log3.txt
-
-# Testes de estresse para 5min:
-sysbench --threads=8 --time=300 --test=cpu run &
-
-cont=1
-
-while [ $cont -le 30 ]
-do
-
-cpu=`mpstat | grep all | awk '{print $3, $5, $6, $8, $9, $12}'`
-
-date=$(date +"%d-%m-%Y")
-time=$(date +"%T")
-
-
-echo $cont $cpu $date $time 
-echo $cont $cpu $date $time >> sysbench_log3.txt
-
-# Frequencia de amostragem: 10 segundos 
-sleep 10
-
-cont=`expr $cont + 1`
-
-done
-
-
-# INTERVALO DE 5 MINUTOS PARA O PRÓXIMO BENCHMARK SER INICIADO
-echo "Próximo Benchmark (stress-ng) iniciará em 5 minutos, aguarde."
-sleep 300
-
-
-# 2º BENCHMARK
-echo
-echo
-echo " -- Stress-ng Benchmark -- "
-
-# 1 - sysbench
-echo "MPSTAT - Obtenção de dados de Benchmarks de CPU"
-echo "Primeira extração de dados do Stress-ng: de 10 em 10 segundos dentro de 5 minutos"
-
-echo 
-echo sample usr sys iowait soft steal idle date hour
-echo sample usr sys iowait soft steal idle date hour > stress-ng_log1.txt
-
-# Testes de estresse para 5min:
-stress-ng --cpu 8 --timeout 300s --metrics &
-
-cont=1
-
-while [ $cont -le 30 ]
-do
-
-cpu=`mpstat | grep all | awk '{print $3, $5, $6, $8, $9, $12}'`
-
-date=$(date +"%d-%m-%Y")
-time=$(date +"%T")
-
-
-echo $cont $cpu $date $time 
-echo $cont $cpu $date $time >> stress-ng_log1.txt
-
-# Frequencia de amostragem: 10 segundos 
-sleep 10
-
-cont=`expr $cont + 1`
-
-done
-
-# 2 - sysbench
-echo "MPSTAT - Obtenção de dados de Benchmarks de CPU"
-echo "Segunda extração de dados do Stress-ng: de 10 em 10 segundos dentro de 5 minutos"
-
-echo 
-echo sample usr sys iowait soft steal idle date hour
-echo sample usr sys iowait soft steal idle date hour > stress-ng_log2.txt
-
-# Testes de estresse para 5min:
-stress-ng --cpu 8 --timeout 300s --metrics &
-
-cont=1
-
-while [ $cont -le 30 ]
-do
-
-cpu=`mpstat | grep all | awk '{print $3, $5, $6, $8, $9, $12}'`
-
-date=$(date +"%d-%m-%Y")
-time=$(date +"%T")
-
-
-echo $cont $cpu $date $time 
-echo $cont $cpu $date $time >> stress-ng_log2.txt
-
-# Frequencia de amostragem: 10 segundos 
-sleep 10
-
-cont=`expr $cont + 1`
-
-done
-
-# 3 - sysbench
-echo "MPSTAT - Obtenção de dados de Benchmarks de CPU"
-echo "Terceira extração de dados do Stress-ng: de 10 em 10 segundos dentro de 5 minutos"
-
-echo 
-echo sample usr sys iowait soft steal idle date hour
-echo sample usr sys iowait soft steal idle date hour > stress-ng_log3.txt
-
-# Testes de estresse para 5min:
-stress-ng --cpu 8 --timeout 300s --metrics &
-
-cont=1
-
-while [ $cont -le 30 ]
-do
-
-cpu=`mpstat | grep all | awk '{print $3, $5, $6, $8, $9, $12}'`
-
-date=$(date +"%d-%m-%Y")
-time=$(date +"%T")
-
-
-echo $cont $cpu $date $time 
-echo $cont $cpu $date $time >> stress-ng_log3.txt
-
-# Frequencia de amostragem: 10 segundos 
-sleep 10
-
-cont=`expr $cont + 1`
-
+    echo "Próximo Benchmark (Sysbench) iniciará em 20 segundos, aguarde."
+    sleep 20
 done
