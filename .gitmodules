@@ -1,0 +1,3 @@
+[submodule "2VA/ads"]
+	path = 2VA/ads
+	url = git@github.com:lohhans/ads.git
